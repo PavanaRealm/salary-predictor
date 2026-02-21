@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salary Predictor</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 480px;
+            text-align: center;
+        }
+        h1 {
+            color: #4a4a8a;
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+        p.subtitle {
+            color: #888;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        label {
+            display: block;
+            text-align: left;
+            color: #555;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            margin-bottom: 20px;
+            transition: border 0.3s;
+        }
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+        button:hover { opacity: 0.9; }
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 10px;
+            color: white;
+        }
+        .result h2 { font-size: 16px; margin-bottom: 8px; opacity: 0.9; }
+        .result h3 { font-size: 36px; font-weight: 700; }
+        .result p { font-size: 13px; margin-top: 6px; opacity: 0.8; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💰 Salary Predictor</h1>
+        <p class="subtitle">Enter your years of experience to predict your salary</p>
+
+        <form action="/predict" method="post">
+            <label for="experience">Years of Experience</label>
+            <input type="number" id="experience" name="experience" 
+                   placeholder="e.g. 5" min="0" max="40" step="0.5" required>
+            <button type="submit">Predict My Salary 🚀</button>
+        </form>
+
+        {% if prediction %}
+        <div class="result">
+            <h2>Predicted Salary for {{ experience }} years experience</h2>
+            <h3>{{ prediction }}</h3>
+            <p>Based on our Machine Learning model</p>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>
