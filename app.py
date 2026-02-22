@@ -14,6 +14,8 @@ job_titles = list(encoders['job_title'].classes_)
 locations = list(encoders['location'].classes_)
 educations = list(encoders['education'].classes_)
 
+german_cities = ['Berlin', 'Munich', 'Hamburg', 'Frankfurt']
+
 @app.route('/')
 def home():
     return render_template('index.html',
@@ -36,7 +38,7 @@ def predict():
                               columns=['years_experience', 'job_title_encoded', 'location_encoded', 'education_encoded'])
 
     prediction = model.predict(input_data)[0]
-    currency = "€" if location == "Berlin" else "$"
+    currency = "€" if location in german_cities else "$"
     salary = f"{currency}{prediction:,.0f}"
 
     return render_template('index.html',
