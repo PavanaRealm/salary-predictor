@@ -4,7 +4,6 @@ import pandas as pd
 
 app = Flask(__name__)
 
-# Load enhanced model and encoders
 with open('salary_model2.pkl', 'rb') as f:
     model = pickle.load(f)
 
@@ -17,7 +16,7 @@ educations = list(encoders['education'].classes_)
 
 @app.route('/')
 def home():
-    return render_template('index.html', 
+    return render_template('index.html',
                            job_titles=job_titles,
                            locations=locations,
                            educations=educations)
@@ -37,7 +36,8 @@ def predict():
                               columns=['years_experience', 'job_title_encoded', 'location_encoded', 'education_encoded'])
 
     prediction = model.predict(input_data)[0]
-    salary = f"${prediction:,.0f}"
+    currency = "€" if location == "Berlin" else "$"
+    salary = f"{currency}{prediction:,.0f}"
 
     return render_template('index.html',
                            prediction=salary,
