@@ -13,6 +13,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            padding: 20px;
         }
         .container {
             background: white;
@@ -20,39 +21,20 @@
             border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             width: 100%;
-            max-width: 480px;
-            text-align: center;
+            max-width: 520px;
         }
-        h1 {
-            color: #4a4a8a;
-            font-size: 28px;
-            margin-bottom: 8px;
-        }
-        p.subtitle {
-            color: #888;
-            margin-bottom: 30px;
-            font-size: 14px;
-        }
-        label {
-            display: block;
-            text-align: left;
-            color: #555;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-        input {
+        h1 { color: #4a4a8a; font-size: 28px; margin-bottom: 8px; text-align: center; }
+        p.subtitle { color: #888; margin-bottom: 30px; font-size: 14px; text-align: center; }
+        label { display: block; color: #555; font-weight: 600; margin-bottom: 6px; margin-top: 16px; }
+        input, select {
             width: 100%;
-            padding: 14px;
+            padding: 12px;
             border: 2px solid #e0e0e0;
             border-radius: 10px;
-            font-size: 16px;
-            margin-bottom: 20px;
+            font-size: 15px;
             transition: border 0.3s;
         }
-        input:focus {
-            outline: none;
-            border-color: #667eea;
-        }
+        input:focus, select:focus { outline: none; border-color: #667eea; }
         button {
             width: 100%;
             padding: 14px;
@@ -63,6 +45,7 @@
             font-size: 18px;
             font-weight: 600;
             cursor: pointer;
+            margin-top: 24px;
             transition: opacity 0.3s;
         }
         button:hover { opacity: 0.9; }
@@ -72,29 +55,54 @@
             background: linear-gradient(135deg, #667eea, #764ba2);
             border-radius: 10px;
             color: white;
+            text-align: center;
         }
-        .result h2 { font-size: 16px; margin-bottom: 8px; opacity: 0.9; }
-        .result h3 { font-size: 36px; font-weight: 700; }
+        .result h2 { font-size: 15px; margin-bottom: 8px; opacity: 0.9; }
+        .result h3 { font-size: 40px; font-weight: 700; }
         .result p { font-size: 13px; margin-top: 6px; opacity: 0.8; }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>💰 Salary Predictor</h1>
-        <p class="subtitle">Enter your years of experience to predict your salary</p>
+        <p class="subtitle">Fill in your details to predict your salary</p>
 
         <form action="/predict" method="post">
-            <label for="experience">Years of Experience</label>
-            <input type="number" id="experience" name="experience" 
-                   placeholder="e.g. 5" min="0" max="40" step="0.5" required>
+            <label>Years of Experience</label>
+            <input type="number" name="experience" placeholder="e.g. 5" min="0" max="40" step="0.5" required value="{{ experience or '' }}">
+
+            <label>Job Title</label>
+            <select name="job_title" required>
+                <option value="">Select Job Title</option>
+                {% for job in job_titles %}
+                <option value="{{ job }}" {% if job == job_title %}selected{% endif %}>{{ job }}</option>
+                {% endfor %}
+            </select>
+
+            <label>Location</label>
+            <select name="location" required>
+                <option value="">Select Location</option>
+                {% for loc in locations %}
+                <option value="{{ loc }}" {% if loc == location %}selected{% endif %}>{{ loc }}</option>
+                {% endfor %}
+            </select>
+
+            <label>Education Level</label>
+            <select name="education" required>
+                <option value="">Select Education</option>
+                {% for edu in educations %}
+                <option value="{{ edu }}" {% if edu == education %}selected{% endif %}>{{ edu }}</option>
+                {% endfor %}
+            </select>
+
             <button type="submit">Predict My Salary 🚀</button>
         </form>
 
         {% if prediction %}
         <div class="result">
-            <h2>Predicted Salary for {{ experience }} years experience</h2>
+            <h2>Predicted Salary</h2>
             <h3>{{ prediction }}</h3>
-            <p>Based on our Machine Learning model</p>
+            <p>{{ experience }} years exp • {{ job_title }} • {{ location }} • {{ education }}</p>
         </div>
         {% endif %}
     </div>
