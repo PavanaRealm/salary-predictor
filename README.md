@@ -1,13 +1,22 @@
 # 💰 Salary Predictor - ML Web App
 
-A machine learning web application that predicts salary based on years of experience.
+An end-to-end Machine Learning web app that predicts salary based on years of experience, job title, location and education level.
 
 ## 🚀 Live Demo
-*Coming soon after deployment*
+👉 https://salary-predictor-vkmt.onrender.com
 
-## 📊 Project Overview
-This project uses Linear Regression to predict salaries based on years of experience.
-The model achieves a 99.39% accuracy (R² Score).
+## 🤖 Algorithm Used
+Linear Regression — chosen for its interpretability and effectiveness at predicting continuous values like salary. The model learns the relationship between input features and salary from historical data.
+
+## 📊 Model Performance
+- R² Score: 0.9810 (98.10% accurate)
+- Mean Absolute Error: ~$5,500
+
+## ✅ Features
+- Predicts salaries for US and German cities
+- Smart currency detection — Euro for Germany, Dollar for US
+- Cities: San Francisco, New York, Berlin, Munich, Hamburg, Frankfurt
+- Deployed live on the internet
 
 ## 🛠️ Tech Stack
 - Python — Core programming language
@@ -16,10 +25,6 @@ The model achieves a 99.39% accuracy (R² Score).
 - Matplotlib and Seaborn — Data visualization
 - Flask — Web framework
 - HTML and CSS — Frontend
-
-## 📈 Model Performance
-- R² Score: 0.9939 (99.39% accurate)
-- Mean Absolute Error: $2,719.95
 
 ## ⚙️ How to Run Locally
 1. Clone the repository: git clone https://github.com/PavanaRealm/salary-predictor.git
