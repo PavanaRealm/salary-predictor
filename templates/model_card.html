@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>Model Card - Salary Predictor</title>
+    <link href='https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap' rel='stylesheet'>
+    <style>
+        :root { --bg: #0a0a0f; --border: rgba(255,255,255,0.08); --accent: #7c6aff; --accent2: #ff6a9e; --accent3: #6affda; --text: #f0f0f8; --muted: rgba(240,240,248,0.45); --glass: rgba(255,255,255,0.06); }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+        body::before { content: ''; position: fixed; inset: 0; background: radial-gradient(ellipse 80% 60% at 20% 20%, rgba(124,106,255,0.12) 0%, transparent 60%); pointer-events: none; z-index: 0; }
+        .container { max-width: 900px; margin: 0 auto; padding: 40px 24px; position: relative; z-index: 1; }
+        .back-btn { display: inline-flex; align-items: center; gap: 8px; color: var(--accent); text-decoration: none; font-size: 14px; margin-bottom: 32px; font-weight: 500; }
+        .badge { display: inline-flex; align-items: center; background: rgba(124,106,255,0.15); border: 1px solid rgba(124,106,255,0.3); color: #a89fff; padding: 6px 14px; border-radius: 100px; font-size: 12px; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 16px; }
+        h1 { font-family: 'Syne', sans-serif; font-size: 40px; font-weight: 800; background: linear-gradient(135deg, #fff 0%, #a89fff 50%, #ff6a9e 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 12px; }
+        .subtitle { color: var(--muted); font-size: 15px; margin-bottom: 8px; }
+        .card { background: var(--glass); border: 1px solid var(--border); border-radius: 20px; padding: 28px; margin-bottom: 20px; backdrop-filter: blur(20px); }
+        .card-title { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+        .card-title::before { content: ''; display: block; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+        .metrics-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+        .metric-box { background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 12px; padding: 16px; text-align: center; }
+        .metric-val { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; color: var(--accent); }
+        .metric-label { font-size: 12px; color: var(--muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.05em; }
+        table { width: 100%; border-collapse: collapse; }
+        th { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+        td { padding: 12px; font-size: 14px; border-bottom: 1px solid rgba(255,255,255,0.04); }
+        .r2-bar { height: 6px; background: rgba(255,255,255,0.08); border-radius: 3px; margin-top: 4px; }
+        .r2-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+        .bias-warning { background: rgba(255,106,158,0.1); border: 1px solid rgba(255,106,158,0.3); border-radius: 10px; padding: 14px; margin-top: 16px; font-size: 13px; color: #ff9abe; }
+        .bias-good { background: rgba(106,255,218,0.1); border: 1px solid rgba(106,255,218,0.3); border-radius: 10px; padding: 14px; margin-top: 16px; font-size: 13px; color: #6affda; }
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .info-item { background: rgba(255,255,255,0.04); border-radius: 10px; padding: 14px; }
+        .info-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+        .info-val { font-size: 14px; font-weight: 500; }
+        .tag { display: inline-block; background: rgba(124,106,255,0.15); border: 1px solid rgba(124,106,255,0.3); color: #a89fff; padding: 3px 10px; border-radius: 6px; font-size: 12px; margin: 3px; }
+        @media (max-width: 600px) { .metrics-grid, .info-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+<div class='container'>
+    <a href='/' class='back-btn'>← Back to Predictor</a>
+    <header style='margin-bottom:40px;'>
+        <div class='badge'>📋 Model Card</div>
+        <h1>Model Transparency Report</h1>
+        <p class='subtitle'>How the Salary Predictor model was built, evaluated, and where it has limitations.</p>
+    </header>
+    <div class='card'>
+        <div class='card-title'>Overall Model Performance</div>
+        <div class='metrics-grid'>
+            <div class='metric-box'><div class='metric-val'>{{ metrics.overall.r2 }}</div><div class='metric-label'>R² Score</div></div>
+            <div class='metric-box'><div class='metric-val' style='color:#ff6a9e'>${{ "{:,}".format(metrics.overall.mae) }}</div><div class='metric-label'>Mean Abs Error</div></div>
+            <div class='metric-box'><div class='metric-val' style='color:#6affda'>${{ "{:,}".format(metrics.overall.rmse) }}</div><div class='metric-label'>RMSE</div></div>
+        </div>
+        <div class='bias-warning'>⚠️ <strong>Important:</strong> An R² of {{ metrics.overall.r2 }} means the model explains about {{ (metrics.overall.r2 * 100)|int }}% of salary variance. Salary prediction is inherently difficult.</div>
+    </div>
+    <div class='card'>
+        <div class='card-title'>Training and Data Details</div>
+        <div class='info-grid'>
+            <div class='info-item'><div class='info-label'>Algorithm</div><div class='info-val'>Gradient Boosting Regressor</div></div>
+            <div class='info-item'><div class='info-label'>Data Split</div><div class='info-val'>80% Train / 20% Test (random_state=42)</div></div>
+            <div class='info-item'><div class='info-label'>Total Records Used</div><div class='info-val'>{{ metrics.data_split.total }} records</div></div>
+            <div class='info-item'><div class='info-label'>Hyperparameters</div><div class='info-val'>n_estimators=200, random_state=42</div></div>
+        </div>
+        <div style='margin-top:16px;'><div class='info-label' style='margin-bottom:8px;'>Input Features</div>
+            <span class='tag'>work_year</span><span class='tag'>job_title</span><span class='tag'>company_location</span><span class='tag'>experience_level</span><span class='tag'>employment_type</span><span class='tag'>company_size</span>
+        </div>
+        <div style='margin-top:12px;'><div class='info-label' style='margin-bottom:8px;'>Data Source</div>
+            <div class='info-val' style='font-size:13px;'>Kaggle — Jobs and Salaries in Data Science dataset. All salaries converted to USD.</div>
+        </div>
+    </div>
+    <div class='card'>
+        <div class='card-title'>Performance by Country</div>
+        <table>
+            <tr><th>Country</th><th>Records</th><th>MAE (USD)</th><th>R² Score</th><th>Reliability</th></tr>
+            {% for c in metrics.by_country %}
+            <tr><td>{{ c.country }}</td><td>{{ c.records }}</td><td>${{ "{:,}".format(c.mae) }}</td><td>{{ c.r2 }}</td>
+            <td><div class='r2-bar'><div class='r2-fill' style='width:{{ [c.r2 * 100, 0]|max }}%'></div></div></td></tr>
+            {% endfor %}
+        </table>
+        <div class='bias-warning'>⚠️ <strong>Data Bias Warning:</strong> The dataset contains significantly more US records than other countries. Non-US predictions have higher uncertainty.</div>
+        <div class='bias-good'>✅ <strong>Interesting finding:</strong> Despite fewer records, Germany, France and Spain show higher R² scores — salaries there are more standardized than US salaries.</div>
+    </div>
+    <div class='card'>
+        <div class='card-title'>Performance by Experience Level</div>
+        <table>
+            <tr><th>Experience Level</th><th>Records</th><th>MAE (USD)</th><th>R² Score</th><th>Reliability</th></tr>
+            {% for e in metrics.by_experience %}
+            <tr><td>{{ e.experience }}</td><td>{{ e.records }}</td><td>${{ "{:,}".format(e.mae) }}</td><td>{{ e.r2 }}</td>
+            <td><div class='r2-bar'><div class='r2-fill' style='width:{{ [e.r2 * 100, 0]|max }}%'></div></div></td></tr>
+            {% endfor %}
+        </table>
+        <div class='bias-warning'>⚠️ <strong>Experience Bias:</strong> The model performs worst for Executive roles — executive compensation depends heavily on factors not in this dataset.</div>
+    </div>
+    <div class='card'>
+        <div class='card-title'>Known Limitations</div>
+        <div style='display:flex;flex-direction:column;gap:12px;font-size:14px;line-height:1.6;color:var(--muted);'>
+            <p>🔸 <strong style='color:var(--text)'>Geographic bias</strong> — 87% of training data is from the United States.</p>
+            <p>🔸 <strong style='color:var(--text)'>Missing features</strong> — Tech stack, company name, bonuses and equity are not captured.</p>
+            <p>🔸 <strong style='color:var(--text)'>Temporal drift</strong> — Trained on 2020-2023 data. Salary trends change over time.</p>
+            <p>🔸 <strong style='color:var(--text)'>Experience imbalance</strong> — 72% of records are Senior level. Other levels are less reliable.</p>
+            <p>🔸 <strong style='color:var(--text)'>Encoding limitation</strong> — Label encoding assumes ordinal relationships that may not exist.</p>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -129,6 +129,48 @@ If you cannot extract all details return:
     else:
         return jsonify({"response": result.get("message")})
 
+
+@app.route("/model-card")
+def model_card():
+    from sklearn.metrics import mean_absolute_error, r2_score, mean_squared_error
+    import numpy as np
+    top_locations = ["United States", "United Kingdom", "Canada", "Germany", "France", "Spain", "Australia"]
+    top_jobs = ["Data Engineer", "Data Scientist", "Data Analyst", "Machine Learning Engineer",
+                "Applied Scientist", "Research Scientist", "Analytics Engineer", "Data Architect"]
+    df_m = df_real[df_real["company_location"].isin(top_locations) & df_real["job_title"].isin(top_jobs)].copy()
+    df_m = df_m[(df_m["salary_in_usd"] > 20000) & (df_m["salary_in_usd"] < 400000)]
+    df_m["job_encoded"] = encoders["job_title"].transform(df_m["job_title"])
+    df_m["location_encoded"] = encoders["location"].transform(df_m["company_location"])
+    df_m["experience_encoded"] = encoders["experience"].transform(df_m["experience_level"])
+    df_m["employment_encoded"] = encoders["employment"].transform(df_m["employment_type"])
+    df_m["size_encoded"] = encoders["size"].transform(df_m["company_size"])
+    X = df_m[["work_year","job_encoded","location_encoded","experience_encoded","employment_encoded","size_encoded"]]
+    y = df_m["salary_in_usd"]
+    preds = model.predict(X)
+    df_m["predicted"] = preds
+    country_metrics = []
+    for loc in top_locations:
+        subset = df_m[df_m["company_location"] == loc]
+        if len(subset) > 5:
+            mae = mean_absolute_error(subset["salary_in_usd"], subset["predicted"])
+            r2 = r2_score(subset["salary_in_usd"], subset["predicted"])
+            country_metrics.append({"country": loc, "records": len(subset), "mae": int(mae), "r2": round(r2, 3)})
+    exp_metrics = []
+    for exp in ["Entry-level", "Mid-level", "Senior", "Executive"]:
+        subset = df_m[df_m["experience_level"] == exp]
+        if len(subset) > 5:
+            mae = mean_absolute_error(subset["salary_in_usd"], subset["predicted"])
+            r2 = r2_score(subset["salary_in_usd"], subset["predicted"])
+            exp_metrics.append({"experience": exp, "records": len(subset), "mae": int(mae), "r2": round(r2, 3)})
+    metrics = {
+        "overall": {"r2": round(r2_score(y, preds), 4), "mae": int(mean_absolute_error(y, preds)), "rmse": int(np.sqrt(mean_squared_error(y, preds)))},
+        "by_country": country_metrics,
+        "by_experience": exp_metrics,
+        "data_split": {"total": len(df_m)},
+        "data_distribution": {"United States": int(df_real[df_real["company_location"]=="United States"].shape[0])}
+    }
+    return render_template("model_card.html", metrics=metrics)
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=False)
