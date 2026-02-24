@@ -13,44 +13,64 @@ with open('encoders.pkl', 'rb') as f:
 
 job_titles = list(encoders['job_title'].classes_)
 locations = list(encoders['location'].classes_)
-educations = list(encoders['education'].classes_)
+experiences = list(encoders['experience'].classes_)
+employments = list(encoders['employment'].classes_)
+sizes = list(encoders['size'].classes_)
 
-german_cities = ['Berlin', 'Munich', 'Hamburg', 'Frankfurt']
+german_countries = ['Germany', 'France', 'Spain']
 
 @app.route('/')
 def home():
     return render_template('index.html',
                            job_titles=job_titles,
                            locations=locations,
-                           educations=educations)
+                           experiences=experiences,
+                           employments=employments,
+                           sizes=sizes)
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    experience = float(request.form['experience'])
+    work_year = 2024
     job_title = request.form['job_title']
     location = request.form['location']
-    education = request.form['education']
+    experience = request.form['experience']
+    employment = request.form['employment']
+    size = request.form['size']
 
     job_encoded = encoders['job_title'].transform([job_title])[0]
     location_encoded = encoders['location'].transform([location])[0]
-    education_encoded = encoders['education'].transform([education])[0]
+    experience_encoded = encoders['experience'].transform([experience])[0]
+    employment_encoded = encoders['employment'].transform([employment])[0]
+    size_encoded = encoders['size'].transform([size])[0]
 
-    input_data = pd.DataFrame([[experience, job_encoded, location_encoded, education_encoded]],
-                              columns=['years_experience', 'job_title_encoded', 'location_encoded', 'education_encoded'])
+    input_data = pd.DataFrame([[work_year, job_encoded, location_encoded,
+                                experience_encoded, employment_encoded, size_encoded]],
+                              columns=['work_year', 'job_encoded', 'location_encoded',
+                                      'experience_encoded', 'employment_encoded', 'size_encoded'])
 
     prediction = model.predict(input_data)[0]
-    currency = "€" if location in german_cities else "$"
+
+    if location in german_countries:
+        currency = "€"
+    elif location == 'United Kingdom':
+        currency = "£"
+    else:
+        currency = "$"
+
     salary = f"{currency}{prediction:,.0f}"
 
     return render_template('index.html',
                            prediction=salary,
-                           experience=experience,
                            job_title=job_title,
                            location=location,
-                           education=education,
+                           experience=experience,
+                           employment=employment,
+                           size=size,
                            job_titles=job_titles,
                            locations=locations,
-                           educations=educations)
+                           experiences=experiences,
+                           employments=employments,
+                           sizes=sizes)
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
