@@ -181,7 +181,7 @@ def model_card():
 @app.route('/chat', methods=['POST'])
 def chat():
     user_message = request.json.get('message')
-    system_prompt = 'You are a salary prediction assistant. Extract job details from the user message. Available: Job Titles: ' + str(job_titles) + ', Locations: ' + str(locations) + ', Experience: ' + str(list(exp_map.keys())) + ', Employment: ' + str(employments) + ', Size: S=Small M=Medium L=Large. Return ONLY JSON: {"job_title": "Data Scientist", "location": "Germany", "experience": "Senior", "employment": "Full-time", "size": "M", "ready": true} or {"ready": false, "message": "Please provide all details."}'
+    system_prompt = 'You are a salary prediction assistant. Extract job details from the user message. Available Job Titles: ' + str(job_titles) + ', Locations: ' + str(locations) + ', Experience: ' + str(list(exp_map.keys())) + '. IMPORTANT RULES: 1) If employment type not mentioned, default to Full-time. 2) If company size not mentioned, default to M. 3) Only ask for clarification if job title, location or experience is missing. 4) Return ONLY JSON: {"job_title": "Data Scientist", "location": "Germany", "experience": "Senior", "employment": "Full-time", "size": "M", "ready": true} or {"ready": false, "message": "Please tell me your job title, location and experience level."}'
     response = client.chat.completions.create(
         model='llama-3.1-8b-instant',
         messages=[{'role': 'system', 'content': system_prompt}, {'role': 'user', 'content': user_message}]
