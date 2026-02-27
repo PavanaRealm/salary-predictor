@@ -31,8 +31,10 @@ experiences = list(exp_map.keys())
 employments = ['Full-time', 'Part-time', 'Contract', 'Freelance']
 sizes = ['S', 'M', 'L']
 
-euro_countries = ['Germany', 'France', 'Spain']
+# Currency mapping - all eurozone countries get euro
+euro_countries = ['Germany', 'France', 'Spain', 'Portugal', 'Netherlands', 'Greece', 'Italy']
 pound_countries = ['United Kingdom']
+dollar_countries = ['United States', 'Canada', 'Australia']
 
 client = Groq(api_key=os.environ.get('GROQ_API_KEY'))
 
@@ -44,8 +46,8 @@ def get_currency(location):
     return 'dollar'
 
 def format_salary(value, currency):
-    s = {'euro': '€', 'pound': '£', 'dollar': '$'}
-    return s[currency] + '{:,.0f}'.format(value)
+    symbols = {'euro': '€', 'pound': '£', 'dollar': '$'}
+    return symbols[currency] + '{:,.0f}'.format(int(value))
 
 def build_input(job_title, location, experience, employment, size):
     row = {col: 0 for col in feature_columns}
@@ -61,7 +63,6 @@ def build_input(job_title, location, experience, employment, size):
     return pd.DataFrame([row])
 
 def predict_salary(job_title, location, experience, employment, size):
-    print("DEBUG predict_salary called:", job_title, location, experience, employment, size)
     try:
         input_data = build_input(job_title, location, experience, employment, size)
         prediction = model.predict(input_data)[0]
@@ -145,8 +146,7 @@ def model_card():
     df_encoded = pd.get_dummies(df_m[['job_title_normalized', 'company_location', 'employment_type']], drop_first=False)
     X = pd.concat([df_m[['work_year', 'size_encoded', 'experience_encoded']].reset_index(drop=True), df_encoded.reset_index(drop=True)], axis=1)
     for col in feature_columns:
-        if col not in X.columns:
-            X[col] = 0
+        if col not in X.columns: X[col] = 0
     X = X[feature_columns]
     y = df_m['salary_in_usd'].reset_index(drop=True)
     preds = model.predict(X)
@@ -193,7 +193,7 @@ def chat():
             pred = salary_result['prediction']
             mn = salary_result['min_salary']
             mx = salary_result['max_salary']
-            warning = ' Warning: Limited data for this combination, prediction has higher uncertainty.' if salary_result['low_data'] else ''
+            warning = ' Warning: Limited data for this combination.' if salary_result['low_data'] else ''
             msg = 'Based on your profile as a ' + jt + ' in ' + loc + ' with ' + exp + ' experience, your predicted salary is ' + pred + ' (Range: ' + mn + ' - ' + mx + ')' + warning
             return jsonify({'response': msg})
         else:
