@@ -25,7 +25,8 @@ exp_map = feature_info['exp_map']
 top_locations = feature_info['top_locations']
 top_jobs = sorted(feature_info['top_jobs'])
 
-job_titles = top_jobs
+visible_titles = feature_info['visible_titles']
+job_titles = sorted(visible_titles.keys())
 locations = top_locations
 experiences = list(exp_map.keys())
 employments = ['Full-time', 'Part-time', 'Contract', 'Freelance']
@@ -50,6 +51,8 @@ def format_salary(value, currency):
     return symbols[currency] + '{:,.0f}'.format(int(value))
 
 def build_input(job_title, location, experience, employment, size):
+    # Map visible title to grouped category
+    job_title = visible_titles.get(job_title, job_title)
     row = {col: 0 for col in feature_columns}
     row['work_year'] = 2024
     row['size_encoded'] = size_map.get(size, 1)
@@ -99,10 +102,10 @@ def get_chart_data(job_title=None, experience=None):
     df_job = df_f[df_f['experience_level'] == experience] if experience else df_f
     job_label = 'Avg salary by job title (experience: ' + str(experience) + ')' if experience else 'Avg salary by job title (all levels)'
     loc_avg = df_loc.groupby('company_location')['salary_in_usd'].mean().reindex(top_locations).dropna()
-    job_avg = df_job.groupby('job_title_normalized')['salary_in_usd'].mean().reindex(top_jobs).dropna().sort_values(ascending=False)
+    job_avg = df_job.groupby('job_title')['salary_in_usd'].mean().dropna().sort_values(ascending=False).head(12)
     return {
         'location': {'labels': list(loc_avg.index), 'values': [int(v) for v in loc_avg.values], 'label': loc_label},
-        'jobs': {'labels': list(job_avg.index), 'values': [int(v) for v in job_avg.values], 'label': job_label}
+        'jobs': {'labels': list(job_avg.index), 'data': [int(v) for v in job_avg.tolist()], 'label': job_label}
     }
 
 @app.route('/')

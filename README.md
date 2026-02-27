@@ -35,3 +35,10 @@ Linear Regression — chosen for its interpretability and effectiveness at predi
 ## 👩‍💻 Author
 Pavani Bhuvaneswari
 Aspiring Data Scientist | ML Enthusiast
+
+
+## Model Transparency
+View the full model card with bias analysis and performance metrics:
+- Live: https://salary-predictor-vkmt.onrender.com/model-card
+- Includes: R² score, MAE, RMSE by country and experience level
+- Known limitations and data bias documented

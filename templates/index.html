@@ -143,7 +143,6 @@
         <h1>Salary Predictor</h1>
         <p class="subtitle">Gradient Boosting ML · 9,355 Real Salary Records · LLaMA Chat Interface</p>
     </header>
-<div style="text-align:center;margin-top:-24px;margin-bottom:24px;"><a href="/model-card" style="display:inline-flex;align-items:center;gap:6px;color:#a89fff;text-decoration:none;font-size:13px;margin-top:12px;padding:8px 16px;background:rgba(124,106,255,0.1);border:1px solid rgba(124,106,255,0.3);border-radius:8px;">📋 View Model Card →</a></div>
     <div class="stats-row">
         <div class="stat-card"><div class="stat-icon">📊</div><div class="stat-val">9,355</div><div class="stat-label">Real salary records</div></div>
         <div class="stat-card"><div class="stat-icon">🌍</div><div class="stat-val">11</div><div class="stat-label">Countries covered</div></div>
@@ -217,8 +216,8 @@
         </div>
     </div>
     <div class="charts-grid">
-        <div class="chart-card"><div class="card-title">Top Paying Jobs</div><canvas id="jobChart" height="200"></canvas></div>
-        <div class="chart-card"><div class="card-title">Salary by Experience</div><canvas id="expChart" height="200"></canvas></div>
+        <div class="chart-card"><div class="card-title">Top Paying Jobs</div><div style="font-size:11px;color:rgba(240,240,248,0.4);margin-bottom:8px;">All values in USD · {{ chart_data.jobs.label }}</div><canvas id="jobChart" height="200"></canvas></div>
+        <div class="chart-card"><div class="card-title">Salary by Experience</div><div style="font-size:11px;color:rgba(240,240,248,0.4);margin-bottom:8px;">All values in USD · All job titles</div><canvas id="expChart" height="200"></canvas></div>
     </div>
 </div>
 <script>
@@ -258,7 +257,13 @@ function addMessage(text, sender, id) {
 }
 document.getElementById("chat-input").addEventListener("keypress", function(e) { if (e.key === "Enter") sendMessage(); });
 const chartOpts = { plugins: { legend: { display: false } }, scales: { x: { ticks: { color: "rgba(240,240,248,0.45)", font: { size: 11 } }, grid: { color: "rgba(255,255,255,0.05)" } }, y: { ticks: { color: "rgba(240,240,248,0.45)", font: { size: 11 }, callback: v => "$" + (v/1000).toFixed(0) + "k" }, grid: { color: "rgba(255,255,255,0.05)" } } } };
-new Chart(document.getElementById("jobChart"), { type: "bar", data: { labels: ["ML Engineer","Applied Sci","Data Architect","Research Sci","Data Engineer","Data Scientist","Analytics Eng","Data Analyst"], datasets: [{ data: [145000,138000,132000,128000,122000,118000,105000,88000], backgroundColor: ["#7c6aff","#8f7fff","#a290ff","#b5a3ff","#c8b6ff","#dbc9ff","#eeddff","#f5f0ff"], borderRadius: 6 }] }, options: { ...chartOpts, indexAxis: "y", scales: { y: { ticks: { color: "rgba(240,240,248,0.6)", font: { size: 10 } }, grid: { display: false } }, x: { ticks: { color: "rgba(240,240,248,0.45)", font: { size: 10 }, callback: v => "$" + (v/1000).toFixed(0) + "k" }, grid: { color: "rgba(255,255,255,0.05)" } } } } });
+const jobLabels = {{ chart_data.jobs.labels | tojson }};
+const jobValues = {{ chart_data.jobs.data | tojson }};
+const jobColors = jobLabels.map((_, i) => {
+    const colors = ["#7c6aff","#8f7fff","#a290ff","#b5a3ff","#c8b6ff","#dbc9ff","#eeddff","#f5f0ff","#6affda","#ff6a9e","#ffaa6a","#a0f0a0"];
+    return colors[i % colors.length];
+});
+new Chart(document.getElementById("jobChart"), { type: "bar", data: { labels: jobLabels, datasets: [{ data: jobValues, backgroundColor: jobColors, borderRadius: 6 }] }, options: { ...chartOpts, indexAxis: "y", plugins: { legend: { display: false }, title: { display: true, text: {{ chart_data.jobs.label | tojson }}, color: "rgba(240,240,248,0.6)", font: { size: 11 } } }, scales: { y: { ticks: { color: "rgba(240,240,248,0.6)", font: { size: 10 } }, grid: { display: false } }, x: { ticks: { color: "rgba(240,240,248,0.45)", font: { size: 10 }, callback: v => "$" + (v/1000).toFixed(0) + "k" }, grid: { color: "rgba(255,255,255,0.05)" } } } } });
 new Chart(document.getElementById("expChart"), { type: "bar", data: { labels: ["Entry-level","Mid-level","Senior","Executive"], datasets: [{ data: [72000,105000,138000,185000], backgroundColor: ["#6affda","#7c6aff","#ff6a9e","#ffaa6a"], borderRadius: 8 }] }, options: chartOpts });
 </script>
 </body>
